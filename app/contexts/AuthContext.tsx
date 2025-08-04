@@ -15,7 +15,7 @@ GoogleSignin.configure({
 // API Base URL - Replace with your actual backend URL
 // For mobile development, use your computer's IP address instead of localhost
 // const API_BASE_URL = "http://10.0.2.2:3000/api"; // For Android emulator
-const API_BASE_URL = "http://localhost:3000/api"; // For iOS simulator
+const API_BASE_URL = "http://localhost:3001/api"; // For iOS simulator
 // const API_BASE_URL = "http://YOUR_COMPUTER_IP:3000/api"; // For physical device
 
 interface User {

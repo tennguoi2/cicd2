@@ -1,0 +1,64 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: minh152005minh
+      MYSQL_DATABASE: todo_app
+      
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    expose:
+      - "3306"
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "3001:3333"
+    environment:
+      
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=minh152005minh
+      - DB_NAME=todo_app
+      - DB_DIALECT=mysql
+      - DB_PORT=3306
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - mysql
+
+  frontend:
+    build: .
+    ports:
+      - "8081:8081"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - .:/app
+    depends_on:
+      - backend
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yaml
+    ports:
+      - "9091:9090"
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+
+
+volumes:
+  mysql-data:

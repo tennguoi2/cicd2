@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios, { AxiosError } from "axios";
 
 // const API_BASE_URL = "http://10.0.2.2:3000/api"; // For Android emulator
-const API_BASE_URL = "http://localhost:3000/api"; // For iOS simulator
+const API_BASE_URL = "http://localhost:3001/api"; // For iOS simulator
 // const API_BASE_URL = "http://YOUR_COMPUTER_IP:3000/api"; // For physical device
 
 export interface Task {

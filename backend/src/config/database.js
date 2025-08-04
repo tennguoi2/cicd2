@@ -1,15 +1,17 @@
 const { Sequelize } = require("sequelize");
 
-// ⚠️ Nhớ thay 'your_password' bằng mật khẩu thật của bạn
+const PORT = process.env.PORT || 3333;
+
+// Cấu hình Sequelize với biến môi trường
 const sequelize = new Sequelize(
-  "todo_app", // DB name
-  "root",     // DB user
-  "minh152005minh", // ⚠️ Thay bằng mật khẩu thật hoặc để "" nếu không có mật khẩu
+  process.env.DB_NAME || "todo_app", // Tên database từ biến môi trường
+  process.env.DB_USER || "root",     // Username từ biến môi trường
+  process.env.DB_PASSWORD || "minh152005minh", // Mật khẩu từ biến môi trường
   {
-    host: "localhost",
-    port: 3306,
+    host: process.env.DB_HOST , // Dùng tên dịch vụ MySQL trong Docker Compose
+    port: process.env.DB_PORT || 3306,
     dialect: "mysql",
-    logging: console.log, // Hiện log truy vấn (có thể tắt nếu cần)
+    logging: console.log, // Hiện log truy vấn (có thể tắt bằng cách đặt false)
     pool: {
       max: 10,
       min: 0,
@@ -25,13 +27,17 @@ const sequelize = new Sequelize(
   }
 );
 
-// ✅ Kiểm tra kết nối
-sequelize.authenticate()
+// Kiểm tra kết nối
+sequelize
+  .authenticate()
   .then(() => {
     console.log("✅ Kết nối DB thành công!");
   })
   .catch((err) => {
     console.error("❌ Lỗi kết nối DB:", err.message);
+    // Tiếp tục chạy server dù kết nối DB thất bại
   });
+
+module.exports = sequelize;
 
 module.exports = sequelize;

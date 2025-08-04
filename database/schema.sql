@@ -90,7 +90,7 @@ CREATE TABLE focus_sessions (
     INDEX idx_session_dates (started_at, completed_at)
 );
 
--- Focus settings table
+
 CREATE TABLE focus_settings (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     user_id VARCHAR(36) UNIQUE NOT NULL,
@@ -104,7 +104,7 @@ CREATE TABLE focus_settings (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Notification settings table
+
 CREATE TABLE notification_settings (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     user_id VARCHAR(36) UNIQUE NOT NULL,
@@ -117,7 +117,7 @@ CREATE TABLE notification_settings (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Theme settings table
+
 CREATE TABLE theme_settings (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     user_id VARCHAR(36) UNIQUE NOT NULL,
@@ -127,7 +127,7 @@ CREATE TABLE theme_settings (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Task sharing table (for collaborative features)
+
 CREATE TABLE task_shares (
     id VARCHAR(36) PRIMARY KEY DEFAULT (UUID()),
     task_id VARCHAR(36) NOT NULL,
