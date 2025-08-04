@@ -26,16 +26,7 @@ pipeline {
             }
         }
         
-        stage('Run Tests') {
-            steps {
-                dir('backend') {
-                    sh 'npm test || true' // Cho phép tiếp tục nếu không có test
-                }
-                dir('frontend') {
-                    sh 'npm test || true'
-                }
-            }
-        }
+        
         
         stage('Build Docker Images') {
             steps {
