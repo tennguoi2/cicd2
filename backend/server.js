@@ -2,7 +2,7 @@ require("dotenv").config();
 const app = require("./src/app");
 const sequelize = require("./src/config/database");
 const client = require("prom-client");
-const PORT = process.env.PORT || 3333;
+const PORT = process.env.PORT || 3001;
 client.collectDefaultMetrics();
 
 // Ví dụ số liệu tùy chỉnh: đếm số lượng yêu cầu HTTP
@@ -13,15 +13,11 @@ const httpRequestsTotal = new client.Counter({
 });
 const cors = require('cors');
 app.use(cors());
-// Middleware để theo dõi yêu cầu
-app.use((req, res, next) => {
-  res.on('finish', () => {
-    httpRequestsTotal.inc({ method: req.method, route: req.path, status: res.statusCode });
-  });
-  next();
-});
+const collectDefaultMetrics = client.collectDefaultMetrics;
+collectDefaultMetrics({ register: client.register });
 
-// Endpoint /metrics
+
+// Endpoint cho Prometheus
 app.get('/metrics', async (req, res) => {
   res.set('Content-Type', client.register.contentType);
   res.end(await client.register.metrics());
