@@ -3,7 +3,8 @@ pipeline {
     
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentials')
-        DOCKER_IMAGE = 'tennguoi2/cicd-nodejs-mysql'
+        DOCKER_IMAGE_BACKEND = 'tennguoi2/cicd-nodejs-mysql-backend'
+        DOCKER_IMAGE_FRONTEND = 'tennguoi2/cicd-nodejs-mysql-frontend'
         DOCKER_TAG = "${BUILD_NUMBER}"
     }
     
@@ -16,21 +17,41 @@ pipeline {
         
         stage('Install Dependencies') {
             steps {
-                script {
+                dir('backend') {
+                    sh 'npm install'
+                }
+                dir('frontend') {
                     sh 'npm install'
                 }
             }
         }
         
+        stage('Run Tests') {
+            steps {
+                dir('backend') {
+                    sh 'npm test || true' // Cho phép tiếp tục nếu không có test
+                }
+                dir('frontend') {
+                    sh 'npm test || true'
+                }
+            }
+        }
         
-        
-        stage('Build Docker Image') {
+        stage('Build Docker Images') {
             steps {
                 script {
-                    def app = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                    // Build backend image
+                    def backendImage = docker.build("${DOCKER_IMAGE_BACKEND}:${DOCKER_TAG}", "-f backend/Dockerfile .")
                     docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
-                        app.push()
-                        app.push("latest")
+                        backendImage.push()
+                        backendImage.push("latest")
+                    }
+                    
+                    // Build frontend image
+                    def frontendImage = docker.build("${DOCKER_IMAGE_FRONTEND}:${DOCKER_TAG}", "-f Dockerfile .")
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
+                        frontendImage.push()
+                        frontendImage.push("latest")
                     }
                 }
             }
@@ -38,17 +59,25 @@ pipeline {
         
         stage('Deploy') {
             steps {
-                script {
-                    sh '''
-                        docker-compose down
-                        docker-compose pull
-                        docker-compose up -d
-                    '''
-                }
+                sh '''
+                    docker-compose down
+                    docker-compose pull
+                    docker-compose up -d
+                '''
             }
         }
         
-        
+        stage('Verify Deployment') {
+            steps {
+                sh '''
+                    sleep 10
+                    curl --fail http://localhost:3001/health || exit 1
+                    curl --fail http://localhost:3001/metrics || exit 1
+                    curl --fail http://localhost:9090/api/v1/targets | grep -q '"health":"up"'
+                    curl --fail http://localhost:3000/api/v1/datasources | grep -q '"name":"Prometheus"'
+                '''
+            }
+        }
     }
     
     post {
@@ -56,10 +85,10 @@ pipeline {
             cleanWs()
         }
         success {
-            echo 'Pipeline succeeded!'
+            echo 'Pipeline succeeded! Application and monitoring are up.'
         }
         failure {
-            echo 'Pipeline failed!'
+            echo 'Pipeline failed! Check logs for details.'
         }
     }
 }
