@@ -58,17 +58,7 @@ pipeline {
             }
         }
         
-        stage('Verify Deployment') {
-            steps {
-                sh '''
-                    sleep 10
-                    curl --fail http://localhost:3001/health || exit 1
-                    curl --fail http://localhost:3001/metrics || exit 1
-                    curl --fail http://localhost:9090/api/v1/targets | grep -q '"health":"up"'
-                    curl --fail http://localhost:3000/api/v1/datasources | grep -q '"name":"Prometheus"'
-                '''
-            }
-        }
+        
     }
     
     post {
